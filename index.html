@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Your Data</title>
+    <style>
+        /* General reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #ffffff; /* Dark background */
+            color: #f1f1f1; /* Light text for contrast */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            flex-direction: column;
+        }
+
+        h2 {
+            font-size: 2.4em;
+            color: #000000;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Main container to hold the form and data */
+        .container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        /* Form Styling */
+        form {
+            background: #1b1b1b; /* Dark form background */
+            border-radius: 12px;
+            padding: 40px;
+            width: 45%;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            display: block;
+            color: #f1f1f1; /* Light label color */
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 14px;
+            margin: 10px 0 20px 0;
+            border: 1px solid #333; /* Subtle border */
+            border-radius: 8px;
+            background-color: #333; /* Dark background for inputs */
+            color: #fff; /* White text in inputs */
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            border-color: #fff; /* Focus border white */
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.2em;
+            background-color: #333; /* Dark button */
+            color: #f1f1f1; /* Light text */
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #444; /* Slightly lighter on hover */
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Data List Styling */
+        #dataList {
+            width: 45%;
+            margin-left: 30px; /* Space between form and data */
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            max-height: 500px;
+            overflow-y: auto; /* Enable scrolling */
+        }
+
+        .data-item {
+            background: #2b2b2b;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            color: #f1f1f1;
+            transition: transform 0.3s ease;
+        }
+
+        .data-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .data-item p {
+            margin: 8px 0;
+            font-size: 1.1em;
+        }
+
+        .data-item p strong {
+            color: #fff; /* White color for emphasis */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            form {
+                width: 80%;
+                padding: 25px;
+            }
+
+            #dataList {
+                width: 80%;
+                margin-left: 0;
+                margin-top: 30px;
+            }
+
+            h2 {
+                font-size: 2em;
+            }
+
+            button {
+                padding: 14px;
+                font-size: 1.1em;
+            }
+
+            .data-item {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h2>Submit Your Data</h2>
+
+<div class="container">
+    <!-- Form Section -->
+    <form id="dataForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" placeholder="Enter your name" required>
+
+        <label for="score">Score:</label>
+        <input type="number" id="score" name="score" placeholder="Enter your score" required>
+
+        <button type="button" id="saveBtn">Save Data</button>
+        <button type="button" id="loadBtn">Load Data</button>
+    </form>
+
+    <!-- Data List Section -->
+    <div id="dataList"></div>
+</div>
+
+<script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyH3xxAAOAbgXm4zjHUJEjD87ceaUKQgm8ACSjguiKW3eP11Gj5f4epUu0tY83GcnVBGw/exec"; // Replace with your Web App URL
+
+    // Save data to Google Sheets
+    document.getElementById("saveBtn").addEventListener("click", () => {
+        const name = document.getElementById("name").value;
+        const score = document.getElementById("score").value;
+        
+        if (name && score) {
+            const payload = { name: name, score: score };
+
+            fetch(scriptURL, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.text())
+            .then(msg => alert(msg))
+            .catch(err => console.error("Error:", err));
+        } else {
+            alert("Please fill out both fields.");
+        }
+    });
+
+    // Load data from Google Sheets
+    document.getElementById("loadBtn").addEventListener("click", () => {
+        fetch(scriptURL + "?action=load")
+            .then(res => res.json())
+            .then(data => {
+                const dataList = document.getElementById("dataList");
+                dataList.innerHTML = ''; // Clear existing data
+                data.forEach(item => {
+                    const div = document.createElement('div');
+                    div.classList.add('data-item');
+                    div.innerHTML = `<p><strong>Name:</strong> ${item.name}</p><p><strong>Score:</strong> ${item.score}</p><p><strong>Date:</strong> ${item.date}</p>`;
+                    dataList.appendChild(div);
+                });
+            })
+            .catch(err => console.error("Error:", err));
+    });
+</script>
+
+</body>
+</html>
